@@ -68,6 +68,8 @@ pub enum CustomError {
          support server and tell lara"
     )]
     MessageTooOld,
+    #[error("channel \"{0}\" not found — check the name or paste the channel ID")]
+    ChannelNotFound(String),
 }
 
 struct Context {
@@ -91,7 +93,7 @@ async fn main() -> Result<()> {
 
     let (mut bot, mut shards) = Bot::new(
         env::var("BOT_TOKEN")?,
-        Intents::empty(),
+        Intents::MESSAGE_CONTENT,
         EventTypeFlags::INTERACTION_CREATE,
     )
     .await?;
