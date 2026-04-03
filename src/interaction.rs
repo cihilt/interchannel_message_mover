@@ -37,9 +37,6 @@ pub async fn set_commands(bot: &Bot) -> Result<()> {
     bot.interaction_client()
         .set_global_commands(commands)
         .await?;
-    bot.interaction_client()
-        .set_guild_commands(TEST_GUILD_ID, commands)
-        .await?;
 
     Ok(())
 }

@@ -95,8 +95,6 @@ async fn main() -> Result<()> {
         EventTypeFlags::INTERACTION_CREATE,
     )
     .await?;
-    bot.set_logging_format(DisplayFormat::Debug);
-    bot.set_logging_channel(LOGGING_CHANNEL_ID).await?;
     bot.set_logging_file("logs.txt".to_owned());
 
     set_commands(&bot).await?;

@@ -42,6 +42,11 @@ impl Context {
         };
         let webhook_token = webhook.token.ok()?;
 
+        // Skip messages with nothing transferable (stickers, system messages, embed-only)
+        if message.content.is_empty() && message.attachments.is_empty() {
+            return Ok(());
+        }
+
         // Download each attachment from Discord CDN so we can re-upload them
         let mut attachment_files: Vec<Attachment> = Vec::new();
         for (idx, attachment) in message.attachments.iter().enumerate() {
