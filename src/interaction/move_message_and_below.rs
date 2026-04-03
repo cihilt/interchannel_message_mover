@@ -55,6 +55,8 @@ impl InteractionContext<'_> {
             )
             .await?;
 
+        // Only track messages that were actually sent — skipped messages are not deleted
+        let mut sent_messages = Vec::new();
         for (idx, message) in messages.iter().enumerate() {
             if (idx + 1) % 10 == 0 {
                 println!(
@@ -64,23 +66,28 @@ impl InteractionContext<'_> {
                 );
             }
 
-            self.ctx
+            let sent = self.ctx
                 .execute_webhook_as_member(message, &channel)
                 .await?;
+            if sent {
+                sent_messages.push(message);
+            }
             tokio::time::sleep(Duration::from_secs(1)).await;
         }
 
-        if (SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs()
+        if sent_messages.is_empty() {
+            println!("{guild_id} nothing to delete");
+        } else if (SystemTime::now().duration_since(UNIX_EPOCH)?.as_secs()
             - u64::try_from(messages[0].timestamp.as_secs())?)
             > 2 * 7 * 24 * 60 * 60
-            || messages.len() == 1
+            || sent_messages.len() == 1
         {
-            for (idx, message) in messages.iter().enumerate() {
+            for (idx, message) in sent_messages.iter().enumerate() {
                 if (idx + 1) % 10 == 0 {
                     println!(
                         "deleting messages in {guild_id}: {}/{}",
                         idx + 1,
-                        messages.len()
+                        sent_messages.len()
                     );
                 }
 
@@ -98,7 +105,7 @@ impl InteractionContext<'_> {
                 .http
                 .delete_messages(
                     messages[0].channel_id,
-                    &messages
+                    &sent_messages
                         .iter()
                         .map(|message| message.id)
                         .collect::<Vec<_>>(),

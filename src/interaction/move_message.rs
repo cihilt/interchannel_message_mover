@@ -32,14 +32,16 @@ impl InteractionContext<'_> {
             )
             .await?;
 
-        self.ctx
+        let sent = self.ctx
             .execute_webhook_as_member(&message, &channel)
             .await?;
-        self.ctx
-            .bot
-            .http
-            .delete_message(message_channel_id, message_id)
-            .await?;
+        if sent {
+            self.ctx
+                .bot
+                .http
+                .delete_message(message_channel_id, message_id)
+                .await?;
+        }
 
         self.handle
             .reply(

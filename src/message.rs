@@ -12,7 +12,7 @@ impl Context {
         &self,
         message: &Message,
         channel: &Channel,
-    ) -> Result<()> {
+    ) -> Result<bool> {
         let mut channel_id = channel.id;
         let mut thread_id = None;
         if channel.kind.is_thread() {
@@ -43,8 +43,9 @@ impl Context {
         let webhook_token = webhook.token.ok()?;
 
         // Skip messages with nothing transferable (stickers, system messages, embed-only)
+        // Return false to signal the caller not to delete this message from source
         if message.content.is_empty() && message.attachments.is_empty() {
-            return Ok(());
+            return Ok(false);
         }
 
         // Download each attachment from Discord CDN so we can re-upload them
@@ -116,7 +117,7 @@ impl Context {
             execute_webhook.await?;
         }
 
-        Ok(())
+        Ok(true)
     }
 }
 
