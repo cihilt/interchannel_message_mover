@@ -1,4 +1,5 @@
 use anyhow::Result;
+use sparkle_convenience::error::IntoError;
 use twilight_model::{
     channel::{Channel, Message},
     http::attachment::Attachment,
